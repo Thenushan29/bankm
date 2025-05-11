@@ -15,6 +15,7 @@ def create_acc():
     except ValueError:
         print("Invalid amount entered.")
         return
+    password = input("create  your password For your account ")
 
     account_number = next_account_number
     next_account_number += 1
@@ -22,15 +23,22 @@ def create_acc():
     user_data[account_number] = {
         "name": name,
         "balance": initial_balance,
-        "transactions": [("Initial Deposit", initial_balance)]
+        "transactions": [("Initial Deposit", initial_balance)],
+        "password" : password
+
     }
+    with open("output.txt","a") as file:
+        for key, value in user_data.items():
+            file.write(f"{key}:{value}\n")
+
 
     print(f"Account created successfully. Account Number: {account_number}")
 
 def deposit():
     try:
         account_number = int(input("Enter account number: "))
-        if account_number not in user_data:
+        passcode = input("Enter your password: ")
+        if account_number not in user_data and passcode not in user_dataX:
             print("Account not found.")
             return
         
@@ -48,7 +56,9 @@ def deposit():
 def withdraw_money():
     try:
         account_number = int(input("Enter account number: "))
-        if account_number not in user_data:
+        passcode = input("Enter your password: ")
+
+        if account_number not in user_data and passcode not in user_data:
             print("Account not found.")
             return
             
@@ -63,6 +73,28 @@ def withdraw_money():
         print("Withdrawal successful.")
     except ValueError:
         print("Invalid input.")
+def balance():
+    try:
+        account_number = int(input("Enter the account number: "))
+        if account_number not in user_data:
+            print("invalid account number😒")
+            return
+        print(f"current balance: {user_data[account_number]['balance']:.2f}")
+    except ValueError:
+        print("invalid input😒")
+
+
+def Transaction():
+    try:
+        account_number = int(input("Enter the account number: "))
+        if account_number not in user_data:
+            print("invalid account number😒")
+            return
+        for history, amount in user_data[account_number]["transactions"]:
+            print(f"{history}: {amount:.2f}")
+    except ValueError:
+        print("invalid input")
+
 
 def opption_admin():
     print("1 = Creat account\n 2 = deposit\n 3 = withdraw\n 4 = check balance\n 5 = Transaction History\n 6 = Exit")
@@ -91,23 +123,7 @@ while True:
         print("invalid password or user name! 😦😥")
         
 choice = input("Enter the opption: ")
-    
-def balance():
-    acc_num = input("Enter the account number: ")
-    if acc_num in user_data:
-        print("your account balance is: ", balance) 
 
-    else:
-        print("invalid account number")
-
-def Transaction():
-    acc_num = input("Enter your account number: ")
-    if acc_num in user_data:
-        print() 
-
-
-    else:
-        print("invalid account number")
 if user == user_name and code == password:
     while True:
 
@@ -124,7 +140,7 @@ if user == user_name and code == password:
     
 
         elif choice == "3":
-            Withdraw()
+            withdraw_money()
             opption_admin()
             choice = input("Enter the opption: ")
     
@@ -152,7 +168,7 @@ if user == user_name and code == password:
     
 
 
-elif user in user_data and code in user_data:
+elif user in output.txtxx and code in output.txt:
     while True:
 
         if choice == "1":
@@ -162,8 +178,8 @@ elif user in user_data and code in user_data:
     
 
         elif choice == "2":
-            Withdraw()
-            opption_cus()
+            withdraw_money()
+            opption_cus() 
             choice = input("Enter the opption: ")
     
 
@@ -189,3 +205,5 @@ elif user in user_data and code in user_data:
 
 else:
     print("invalid username or password ")
+
+     
