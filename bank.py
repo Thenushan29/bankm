@@ -103,11 +103,7 @@ def opption_admin():
 def opption_cus():
    print("1 = Withdraw\n 2 = Diposit\n 3 = Check balance\n 4 = Transaction History\n 5 = Exit")
   
-def check_user(username, password):
-    for acc_num, details in user_data.items():
-        if details["name"] == username and details["password"] == password:
-            return acc_num
-    return None
+
 while True:
 
     user = (input("Enter your user name: "))
@@ -172,7 +168,7 @@ if user == user_name and code == password:
     
 
 
-elif account_number = check_user(user, code):
+elif user in user_data and code in user_data:
     if account_number is not None:
         print("Login successfully 👍😎")
         opption_cus()
