@@ -38,7 +38,7 @@ def deposit():
     try:
         account_number = int(input("Enter account number: "))
         passcode = input("Enter your password: ")
-        if account_number not in user_data and passcode not in user_dataX:
+        if account_number not in user_data and passcode not in user_data:
             print("Account not found.")
             return
         
@@ -172,8 +172,7 @@ if user == user_name and code == password:
     
 
 
-else:
-    account_number = check_user(user, code)
+elif account_number = check_user(user, code):
     if account_number is not None:
         print("Login successfully 👍😎")
         opption_cus()
