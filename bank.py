@@ -1,213 +1,200 @@
-user_name = "admin"
-password = "pass123"
+import json
+import os
 
-user_data = {}
+# Default Admin Login
+ADMIN_USERNAME = "admin"
+ADMIN_PASSWORD = "pass123"
+
+# Data Storage File
+DATA_FILE = "bank_data.txt"
+
+# Load existing data
+if os.path.exists(DATA_FILE):
+    with open(DATA_FILE, "r") as file:
+        user_data = json.load(file)
+else:
+    user_data = {}
+
 next_account_number = 1001
 
+
+def save_data():
+    """Save all account data to file"""
+    with open(DATA_FILE, "w") as file:
+        json.dump(user_data, file, indent=4)
+
+
 def create_acc():
+    """Create a new bank account"""
     global next_account_number
-    name = input("Enter account user name: ")
+    name = input("Enter account user name: ").strip()
     try:
-        initial_balance = float(input("Enter the amount: "))
+        initial_balance = float(input("Enter initial deposit amount: "))
         if initial_balance < 0:
-            print("Invalid amount😒")
+            print("❌ Invalid amount!")
             return
     except ValueError:
-        print("Invalid amount entered.")
+        print("❌ Please enter a valid number!")
         return
-    password = input("create  your password For your account ")
 
-    account_number = next_account_number
+    password = input("Create your password: ").strip()
+
+    account_number = str(next_account_number)
     next_account_number += 1
 
     user_data[account_number] = {
         "name": name,
         "balance": initial_balance,
+        "password": password,
         "transactions": [("Initial Deposit", initial_balance)],
-        "password" : password
-
     }
-    with open("output.txt","a") as file:
-        for key, value in user_data.items():
-            file.write(f"{key}:{value}\n")
+
+    save_data()
+    print(f"✅ Account created successfully! Your Account Number: {account_number}")
 
 
-    print(f"Account created successfully. Account Number: {account_number}")
+def login_customer():
+    """Customer login"""
+    account_number = input("Enter your Account Number: ").strip()
+    password = input("Enter your password: ").strip()
 
-def deposit():
+    if account_number in user_data and user_data[account_number]["password"] == password:
+        print(f"🎉 Welcome {user_data[account_number]['name']}!")
+        return account_number
+    else:
+        print("❌ Invalid account number or password!")
+        return None
+
+
+def deposit(account_number):
+    """Deposit money into an account"""
     try:
-        account_number = int(input("Enter account number: "))
-        passcode = input("Enter your password: ")
-        if account_number not in user_data and passcode not in user_data:
-            print("Account not found.")
-            return
-        
-        amount = float(input("Enter amount to deposit: "))
+        amount = float(input("Enter deposit amount: "))
         if amount <= 0:
-            print("Amount must be positive.")
+            print("❌ Amount must be positive!")
             return
-
         user_data[account_number]["balance"] += amount
         user_data[account_number]["transactions"].append(("Deposit", amount))
-        print("Deposit successful.")
+        save_data()
+        print("💰 Deposit successful!")
     except ValueError:
-        print("Invalid input.")
+        print("❌ Invalid input!")
 
-def withdraw_money():
+
+def withdraw(account_number):
+    """Withdraw money"""
     try:
-        account_number = int(input("Enter account number: "))
-        passcode = input("Enter your password: ")
-
-        if account_number not in user_data and passcode not in user_data:
-            print("Account not found.")
-            return
-            
         amount = float(input("Enter amount to withdraw: "))
-        
-        if amount > user_data[account_number]["balance"] and amount < 0:
-            print("Insufficient balance.")
+        if amount <= 0:
+            print("❌ Invalid amount!")
+            return
+        if amount > user_data[account_number]["balance"]:
+            print("⚠️ Insufficient balance!")
             return
 
         user_data[account_number]["balance"] -= amount
-        user_data[account_number]["transactions"].append(("Withdrawal", amount))
-        print("Withdrawal successful.")
+        user_data[account_number]["transactions"].append(("Withdraw", -amount))
+        save_data()
+        print("✅ Withdrawal successful!")
     except ValueError:
-        print("Invalid input.")
-def balance():
-    try:
-        account_number = int(input("Enter the account number: "))
-        if account_number not in user_data:
-            print("invalid account number😒")
-            return
-        print(f"current balance: {user_data[account_number]['balance']:.2f}")
-    except ValueError:
-        print("invalid input😒")
+        print("❌ Invalid input!")
 
 
-def Transaction():
-    try:
-        account_number = int(input("Enter the account number: "))
-        if account_number not in user_data:
-            print("invalid account number😒")
-            return
-        for history, amount in user_data[account_number]["transactions"]:
-            print(f"{history}: {amount:.2f}")
-    except ValueError:
-        print("invalid input")
+def check_balance(account_number):
+    """Check account balance"""
+    balance = user_data[account_number]["balance"]
+    print(f"💵 Current Balance: {balance:.2f}")
 
 
-def opption_admin():
-    print("1 = Creat account\n 2 = deposit\n 3 = withdraw\n 4 = check balance\n 5 = Transaction History\n 6 = Exit")
-    
+def transaction_history(account_number):
+    """Display transaction history"""
+    print("\n📜 Transaction History:")
+    for t_type, amount in user_data[account_number]["transactions"]:
+        print(f" - {t_type}: {amount:.2f}")
 
-def opption_cus():
-   print("1 = Withdraw\n 2 = Diposit\n 3 = Check balance\n 4 = Transaction History\n 5 = Exit")
-  
 
-while True:
-
-    user = (input("Enter your user name: "))
-    code = (input("Enter your password: "))
-    
-    if user == user_name  and code == password:
-       print("login successfullly👍😎")
-       opption_admin()
-       
-       break
-    
-    elif user in user_data and code in user_data:
-        print("login successfullly👍😎")
-        opption_cus()
-        break
-    else:
-        print("invalid password or user name! 😦😥")
-        
-choice = input("Enter the opption: ")
-
-if user == user_name and code == password:
+def admin_menu():
+    """Admin menu"""
     while True:
+        print("\n===== 🧑‍💼 ADMIN MENU =====")
+        print("1. Create New Account")
+        print("2. View All Accounts")
+        print("3. Exit")
+
+        choice = input("Enter your choice: ")
 
         if choice == "1":
             create_acc()
-            opption_admin()
-            choice = input("Enter the opption: ")
-    
-
         elif choice == "2":
-            deposit()
-            opption_admin()
-            choice = input("Enter the opption: ")
-    
-
+            for acc_no, details in user_data.items():
+                print(f"\nAccount: {acc_no}")
+                print(f"Name: {details['name']}")
+                print(f"Balance: {details['balance']}")
         elif choice == "3":
-            withdraw_money()
-            opption_admin()
-            choice = input("Enter the opption: ")
-    
-
-        elif choice == "4":
-            balance()
-            opption_admin()
-            choice = input("Enter the opption: ")
-    
-
-        elif choice == "5":
-            Transaction()
-            opption_admin()
-            choice = input("Enter the opption: ")
-    
-
-        elif choice == "6":
-            print("Tnq😁")
+            print("👋 Logged out from Admin.")
             break
-
         else:
-            print("invalid opption 🤦‍♂️")
-            opption_admin()
-            choice = input("Enter the opption: ")
-    
+            print("❌ Invalid option!")
 
 
-elif user in user_data and code in user_data:
-    if account_number is not None:
-        print("Login successfully 👍😎")
-        opption_cus()
-        
-    else:
-        print("Invalid username or password! 😦😥")
+def customer_menu(account_number):
+    """Customer menu"""
     while True:
+        print("\n===== 👤 CUSTOMER MENU =====")
+        print("1. Deposit")
+        print("2. Withdraw")
+        print("3. Check Balance")
+        print("4. Transaction History")
+        print("5. Logout")
+
+        choice = input("Enter your choice: ")
 
         if choice == "1":
-            deposit()
-            opption_cus()
-            choice = input("Enter the opption: ")
-    
-
+            deposit(account_number)
         elif choice == "2":
-            withdraw_money()
-            opption_cus() 
-            choice = input("Enter the opption: ")
-    
-
+            withdraw(account_number)
         elif choice == "3":
-            balance()
-            opption_cus()
-            choice = input("Enter the opption: ")
-    
-
+            check_balance(account_number)
         elif choice == "4":
-            Transaction()
-            opption_cus()
-            choice = input("Enter the opption: ")
-    
-
+            transaction_history(account_number)
         elif choice == "5":
-            print("Tnq😁")
+            print("👋 Logged out successfully.")
             break
         else:
-            print("invalid opption 🤦‍♂️")
-            opption_cus()
-            choice = input("Enter the opption: ")
+            print("❌ Invalid option!")
 
-else:
-    print("invalid username or password ")
+
+def main():
+    """Main login system"""
+    while True:
+        print("\n===== 🏦 SIMPLE BANKING SYSTEM =====")
+        print("1. Admin Login")
+        print("2. Customer Login")
+        print("3. Exit")
+
+        option = input("Enter your choice: ")
+
+        if option == "1":
+            user = input("Admin username: ").strip()
+            pwd = input("Admin password: ").strip()
+
+            if user == ADMIN_USERNAME and pwd == ADMIN_PASSWORD:
+                print("✅ Admin login successful!")
+                admin_menu()
+            else:
+                print("❌ Wrong admin credentials!")
+
+        elif option == "2":
+            account = login_customer()
+            if account:
+                customer_menu(account)
+
+        elif option == "3":
+            print("🙏 Thank you for using our bank!")
+            break
+        else:
+            print("❌ Invalid option!")
+
+
+if __name__ == "__main__":
+    main()
