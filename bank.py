@@ -1,14 +1,14 @@
 import json
 import os
 
-# Default Admin Login
+
 ADMIN_USERNAME = "admin"
 ADMIN_PASSWORD = "pass123"
 
-# Data Storage File
+
 DATA_FILE = "bank_data.txt"
 
-# Load existing data
+
 if os.path.exists(DATA_FILE):
     with open(DATA_FILE, "r") as file:
         user_data = json.load(file)
